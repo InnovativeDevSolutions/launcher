@@ -297,6 +297,23 @@ jobs:
           upload_file "latest.json"
           
           # Upload all artifacts including .sig files for updater
-          find ./artifacts -type f \( -name "*.dmg" -o -name "*.deb" -o -name "*.AppImage" -o -name "*.msi" -o -name "*.exe" -o -name "*.sig" -o -name "*.app.tar.gz" \) | while read -r file; do
+          # Handle macOS files specially to avoid naming conflicts
+          find ./artifacts -type f \( -name "*.dmg" -o -name "*.deb" -o -name "*.AppImage" -o -name "*.msi" -o -name "*.exe" -o -name "*.sig" \) | while read -r file; do
             upload_file "$file"
+          done
+          
+          # Handle macOS .app.tar.gz files with architecture-specific names
+          find ./artifacts -name "*.app.tar.gz" -type f | while read -r file; do
+            if echo "$file" | grep -q "aarch64"; then
+              # Create a copy with aarch64 in the name
+              cp "$file" "$(dirname "$file")/Forge Launcher_aarch64.app.tar.gz"
+              upload_file "$(dirname "$file")/Forge Launcher_aarch64.app.tar.gz"
+            elif echo "$file" | grep -q "x86_64"; then
+              # Create a copy with x86_64 in the name
+              cp "$file" "$(dirname "$file")/Forge Launcher_x86_64.app.tar.gz"
+              upload_file "$(dirname "$file")/Forge Launcher_x86_64.app.tar.gz"
+            else
+              # Fallback for unknown architecture
+              upload_file "$file"
+            fi
           done
