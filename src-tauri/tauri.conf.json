@@ -37,7 +37,7 @@
   },
   "plugins": {
     "updater": {
-      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEYzMTg0NTM1MzRGRDA5ODMKUldTRENmMDBOVVVZOCsvaDB4dWRLK3dkdHVGTWJNeVBOUlo0eldBc1dpN2pyZ3JnVmRuZkN1SzgK",
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDY1QjM5QTI0MUE0NEIyRUMKUldUc3NrUWFKSnF6WlV3WnZLWlFqb0NiaFhrT0szZ3pKcXdsSERtVStmK3VRNUxQNWRSMU1KZWEK",
       "endpoints": [
         "https://github.com/InnovativeDevSolutions/launcher/releases/latest/download/latest.json"
       ],
