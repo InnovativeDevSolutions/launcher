@@ -122,7 +122,15 @@ jobs:
           path: ./artifacts
 
       - name: Display structure of downloaded files
-        run: ls -la ./artifacts
+        run: |
+          echo "=== Artifacts directory structure ==="
+          ls -la ./artifacts
+          echo "=== Detailed recursive listing ==="
+          find ./artifacts -type f -name "*" | sort
+          echo "=== Windows files specifically ==="
+          find ./artifacts -type f \( -name "*.msi" -o -name "*.exe" \) | sort
+          echo "=== All .sig files ==="
+          find ./artifacts -name "*.sig" -type f | sort
 
       - name: Get version from tag
         id: get_version
@@ -296,24 +304,40 @@ jobs:
           # Upload latest.json first (important for updater)
           upload_file "latest.json"
           
-          # Upload all artifacts including .sig files for updater
-          # Handle macOS files specially to avoid naming conflicts
-          find ./artifacts -type f \( -name "*.dmg" -o -name "*.deb" -o -name "*.AppImage" -o -name "*.msi" -o -name "*.exe" -o -name "*.sig" \) | while read -r file; do
+          # Upload non-macOS artifacts first
+          find ./artifacts -type f \( -name "*.dmg" -o -name "*.deb" -o -name "*.AppImage" -o -name "*.msi" -o -name "*.exe" \) | while read -r file; do
             upload_file "$file"
           done
           
-          # Handle macOS .app.tar.gz files with architecture-specific names
+          # Upload non-macOS .sig files
+          find ./artifacts -name "*.sig" -type f | grep -v "app.tar.gz.sig" | while read -r file; do
+            upload_file "$file"
+          done
+          
+          # Handle macOS .app.tar.gz files and their .sig files with architecture-specific names
           find ./artifacts -name "*.app.tar.gz" -type f | while read -r file; do
+            sig_file="${file}.sig"
             if echo "$file" | grep -q "aarch64"; then
-              # Create a copy with aarch64 in the name
+              # Create copies with aarch64 in the name
               cp "$file" "$(dirname "$file")/Forge Launcher_aarch64.app.tar.gz"
               upload_file "$(dirname "$file")/Forge Launcher_aarch64.app.tar.gz"
+              if [ -f "$sig_file" ]; then
+                cp "$sig_file" "$(dirname "$file")/Forge Launcher_aarch64.app.tar.gz.sig"
+                upload_file "$(dirname "$file")/Forge Launcher_aarch64.app.tar.gz.sig"
+              fi
             elif echo "$file" | grep -q "x86_64"; then
-              # Create a copy with x86_64 in the name
+              # Create copies with x86_64 in the name
               cp "$file" "$(dirname "$file")/Forge Launcher_x86_64.app.tar.gz"
               upload_file "$(dirname "$file")/Forge Launcher_x86_64.app.tar.gz"
+              if [ -f "$sig_file" ]; then
+                cp "$sig_file" "$(dirname "$file")/Forge Launcher_x86_64.app.tar.gz.sig"
+                upload_file "$(dirname "$file")/Forge Launcher_x86_64.app.tar.gz.sig"
+              fi
             else
               # Fallback for unknown architecture
               upload_file "$file"
+              if [ -f "$sig_file" ]; then
+                upload_file "$sig_file"
+              fi
             fi
           done
