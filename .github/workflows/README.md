@@ -6,7 +6,7 @@ This directory contains GitHub Actions workflows specifically for building, test
 
 ### 1. CI Workflow (`ci.yml`)
 
-**Purpose**: Continuous Integration - runs on every push and pull request to main/develop branches.
+**Purpose**: Continuous Integration - runs on every push and pull request to master/develop branches.
 
 **What it does**:
 - Runs tests for both frontend (Vue.js) and backend (Rust)
@@ -15,8 +15,8 @@ This directory contains GitHub Actions workflows specifically for building, test
 - Builds debug versions for verification
 
 **Triggers**:
-- Push to `main` or `develop` branches
-- Pull requests to `main` or `develop` branches
+- Push to `master` or `develop` branches
+- Pull requests to `master` or `develop` branches
 
 ### 2. Release Workflow (`release.yml`)
 
