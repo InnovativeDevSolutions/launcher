@@ -71,7 +71,7 @@ jobs:
         run: bun install
 
       - name: Build the app
-        run: bun run tauri build ${{ matrix.args }}
+        run: bunx tauri build ${{ matrix.args }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
@@ -319,19 +319,19 @@ jobs:
             sig_file="${file}.sig"
             if echo "$file" | grep -q "aarch64"; then
               # Create copies with aarch64 in the name
-              cp "$file" "$(dirname "$file")/Forge Launcher_aarch64.app.tar.gz"
-              upload_file "$(dirname "$file")/Forge Launcher_aarch64.app.tar.gz"
+              cp "$file" "$(dirname "$file")/Forge.Launcher_aarch64.app.tar.gz"
+              upload_file "$(dirname "$file")/Forge.Launcher_aarch64.app.tar.gz"
               if [ -f "$sig_file" ]; then
-                cp "$sig_file" "$(dirname "$file")/Forge Launcher_aarch64.app.tar.gz.sig"
-                upload_file "$(dirname "$file")/Forge Launcher_aarch64.app.tar.gz.sig"
+                cp "$sig_file" "$(dirname "$file")/Forge.Launcher_aarch64.app.tar.gz.sig"
+                upload_file "$(dirname "$file")/Forge.Launcher_aarch64.app.tar.gz.sig"
               fi
             elif echo "$file" | grep -q "x86_64"; then
               # Create copies with x86_64 in the name
-              cp "$file" "$(dirname "$file")/Forge Launcher_x86_64.app.tar.gz"
-              upload_file "$(dirname "$file")/Forge Launcher_x86_64.app.tar.gz"
+              cp "$file" "$(dirname "$file")/Forge.Launcher_x86_64.app.tar.gz"
+              upload_file "$(dirname "$file")/Forge.Launcher_x86_64.app.tar.gz"
               if [ -f "$sig_file" ]; then
-                cp "$sig_file" "$(dirname "$file")/Forge Launcher_x86_64.app.tar.gz.sig"
-                upload_file "$(dirname "$file")/Forge Launcher_x86_64.app.tar.gz.sig"
+                cp "$sig_file" "$(dirname "$file")/Forge.Launcher_x86_64.app.tar.gz.sig"
+                upload_file "$(dirname "$file")/Forge.Launcher_x86_64.app.tar.gz.sig"
               fi
             else
               # Fallback for unknown architecture
