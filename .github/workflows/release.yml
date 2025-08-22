@@ -169,6 +169,26 @@ jobs:
           draft: false
           prerelease: false
 
+      - name: Prepare macOS files with correct naming
+        run: |
+          # First, rename macOS .app.tar.gz files and their .sig files with correct naming
+          find ./artifacts -name "*.app.tar.gz" -type f | while read -r file; do
+            sig_file="${file}.sig"
+            if echo "$file" | grep -q "aarch64"; then
+              # Create copies with aarch64 in the name
+              cp "$file" "$(dirname "$file")/Forge.Launcher_aarch64.app.tar.gz"
+              if [ -f "$sig_file" ]; then
+                cp "$sig_file" "$(dirname "$file")/Forge.Launcher_aarch64.app.tar.gz.sig"
+              fi
+            elif echo "$file" | grep -q "x86_64"; then
+              # Create copies with x86_64 in the name
+              cp "$file" "$(dirname "$file")/Forge.Launcher_x86_64.app.tar.gz"
+              if [ -f "$sig_file" ]; then
+                cp "$sig_file" "$(dirname "$file")/Forge.Launcher_x86_64.app.tar.gz.sig"
+              fi
+            fi
+          done
+
       - name: Generate latest.json for updater
         run: |
           # Create latest.json for the updater
@@ -228,9 +248,9 @@ jobs:
             fi
           fi
           
-          # macOS x64 (Intel)
-          if find ./artifacts -name "*.app.tar.gz" -type f | grep x86_64 | head -1 | grep -q .; then
-            MACOS_FILE=$(find ./artifacts -name "*.app.tar.gz" -type f | grep x86_64 | head -1)
+          # macOS x64 (Intel) - Use renamed files
+          if find ./artifacts -name "Forge.Launcher_x86_64.app.tar.gz" -type f | head -1 | grep -q .; then
+            MACOS_FILE=$(find ./artifacts -name "Forge.Launcher_x86_64.app.tar.gz" -type f | head -1)
             MACOS_SIG="${MACOS_FILE}.sig"
             if [ -f "$MACOS_SIG" ]; then
               SIGNATURE=$(cat "$MACOS_SIG")
@@ -247,9 +267,9 @@ jobs:
             fi
           fi
           
-          # macOS ARM64 (Apple Silicon)
-          if find ./artifacts -name "*.app.tar.gz" -type f | grep aarch64 | head -1 | grep -q .; then
-            MACOS_ARM_FILE=$(find ./artifacts -name "*.app.tar.gz" -type f | grep aarch64 | head -1)
+          # macOS ARM64 (Apple Silicon) - Use renamed files
+          if find ./artifacts -name "Forge.Launcher_aarch64.app.tar.gz" -type f | head -1 | grep -q .; then
+            MACOS_ARM_FILE=$(find ./artifacts -name "Forge.Launcher_aarch64.app.tar.gz" -type f | head -1)
             MACOS_ARM_SIG="${MACOS_ARM_FILE}.sig"
             if [ -f "$MACOS_ARM_SIG" ]; then
               SIGNATURE=$(cat "$MACOS_ARM_SIG")
@@ -314,30 +334,11 @@ jobs:
             upload_file "$file"
           done
           
-          # Handle macOS .app.tar.gz files and their .sig files with architecture-specific names
-          find ./artifacts -name "*.app.tar.gz" -type f | while read -r file; do
+          # Upload the renamed macOS .app.tar.gz files and their .sig files
+          find ./artifacts -name "Forge.Launcher_*.app.tar.gz" -type f | while read -r file; do
+            upload_file "$file"
             sig_file="${file}.sig"
-            if echo "$file" | grep -q "aarch64"; then
-              # Create copies with aarch64 in the name
-              cp "$file" "$(dirname "$file")/Forge.Launcher_aarch64.app.tar.gz"
-              upload_file "$(dirname "$file")/Forge.Launcher_aarch64.app.tar.gz"
-              if [ -f "$sig_file" ]; then
-                cp "$sig_file" "$(dirname "$file")/Forge.Launcher_aarch64.app.tar.gz.sig"
-                upload_file "$(dirname "$file")/Forge.Launcher_aarch64.app.tar.gz.sig"
-              fi
-            elif echo "$file" | grep -q "x86_64"; then
-              # Create copies with x86_64 in the name
-              cp "$file" "$(dirname "$file")/Forge.Launcher_x86_64.app.tar.gz"
-              upload_file "$(dirname "$file")/Forge.Launcher_x86_64.app.tar.gz"
-              if [ -f "$sig_file" ]; then
-                cp "$sig_file" "$(dirname "$file")/Forge.Launcher_x86_64.app.tar.gz.sig"
-                upload_file "$(dirname "$file")/Forge.Launcher_x86_64.app.tar.gz.sig"
-              fi
-            else
-              # Fallback for unknown architecture
-              upload_file "$file"
-              if [ -f "$sig_file" ]; then
-                upload_file "$sig_file"
-              fi
+            if [ -f "$sig_file" ]; then
+              upload_file "$sig_file"
             fi
           done
